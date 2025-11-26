@@ -168,7 +168,7 @@
             margin-left: 20px; 
             opacity: 0; 
             transform: translateY(20px); 
-            animation: fadeInRise 1s ease-out forwards; 
+            animation: fadeInRise 1s ease-out forwards 0.3s;
         }
 
         .logo-placeholder img {
@@ -188,7 +188,6 @@
             }
         }
         
-        /* Стили для стрелок */
         .scroll-down-arrow,
         .scroll-up-arrow {
             position: absolute;
@@ -241,7 +240,6 @@
             animation: bounce-up 2s infinite;
         }
         
-        /* Анимация для стрелки вниз */
         @keyframes bounce-down {
             0%, 20%, 50%, 80%, 100% {
                 transform: translate(-50%, -60%) rotate(45deg) translateY(0);
@@ -254,7 +252,6 @@
             }
         }
 
-        /* Анимация для стрелки вверх */
         @keyframes bounce-up {
             0%, 20%, 50%, 80%, 100% {
                 transform: translate(-50%, -40%) rotate(-135deg) translateY(0);
@@ -367,7 +364,76 @@
             color: rgba(255, 255, 255, 0.7);
             transition: color 0.5s;
         }
+        
+        @media (max-width: 768px) {
+            .content-container {
+                flex-direction: column; 
+                text-align: center;
+                padding: 10px;
+                max-width: 100%;
+            }
 
+            .section-1 {
+                padding-top: 60px; 
+                padding-bottom: 60px;
+            }
+
+            .text-block {
+                margin-right: 0; 
+                margin-bottom: 30px; 
+            }
+
+            .main-title {
+                font-size: 2.5em; 
+            }
+            
+            .main-title::after {
+                width: 100%; 
+                left: 0;
+                transform: none; 
+                bottom: -5px;
+            }
+
+            .logo-placeholder {
+                width: 100%; 
+                max-width: 300px; 
+                height: auto; 
+                margin-left: 0; 
+                margin: 0 auto; 
+            }
+            
+            .logo-placeholder img {
+                height: auto;
+                max-height: 300px; 
+            }
+
+            #theme-toggle {
+                top: 10px;
+                right: 10px;
+                width: 35px;
+                height: 35px;
+            }
+            
+            #theme-toggle svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 2em; 
+            }
+            .subtitle {
+                font-size: 1.1em; 
+            }
+            
+            .logo-placeholder {
+                max-width: 200px; 
+                margin-bottom: 10px;
+            }
+        }
+        
         @media (max-width: 600px) {
             .section-2 .container {
                 max-width: 100%;
@@ -415,10 +481,12 @@
             }
         }
         
-        /* 💡 ИЗМЕНЕНИЕ 1: Скорректировано позиционирование */
+        .section-1 {
+            position: relative;
+        }
+
         #theme-toggle {
-            /* position: fixed; <--- УДАЛЕНО */
-            position: absolute; /* Теперь позиционируется относительно .section-1 */
+            position: absolute; 
             top: 20px;
             right: 20px;
             background: rgba(255, 255, 255, 0.1);
@@ -573,14 +641,12 @@
         function setTheme(isLight) {
             if (isLight) {
                 body.classList.add('light-theme');
-                // Светлая тема активна -> показываем Луну (чтобы переключиться на Темную)
                 moonIcon.style.display = 'block'; 
                 sunIcon.style.display = 'none'; 
                 localStorage.setItem('theme', 'light');
                 favicon.classList.add('invertible-content');
             } else {
                 body.classList.remove('light-theme');
-                // Темная тема активна -> показываем Солнце (чтобы переключиться на Светлую)
                 sunIcon.style.display = 'block'; 
                 moonIcon.style.display = 'none'; 
                 localStorage.setItem('theme', 'dark');
@@ -621,10 +687,9 @@
             goToSection(1);
         });
 
-        // Добавлено: обработчик клика по стрелке вверх
         document.querySelector('.scroll-up-arrow').addEventListener('click', (e) => {
             e.preventDefault();
-            goToSection(0); // Переход к первой секции
+            goToSection(0); 
         });
 
 
