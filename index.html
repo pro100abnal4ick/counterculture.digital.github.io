@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Контр-Культура</title>
     <link rel="icon" href="favicon.png" type="image/png" id="favicon">
     <link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
@@ -12,6 +12,8 @@
             padding: 0;
             scroll-behavior: smooth; 
             height: 100%;
+            height: 100vh;
+            height: 100dvh;
             overflow-x: hidden;
             overflow-y: hidden; 
             transition: background-color 0.5s, color 0.5s;
@@ -106,7 +108,8 @@
             display: flex;
             justify-content: center; 
             align-items: center; 
-            min-height: 100vh; 
+            min-height: 100vh;
+            min-height: 100dvh;
             width: 100vw;
             position: relative;
         }
@@ -366,6 +369,20 @@
         }
         
         @media (max-width: 768px) {
+            html, body {
+                height: 100vh;
+                height: 100dvh;
+                overflow: hidden;
+            }
+
+            body {
+                position: fixed;
+                width: 100%;
+                height: 100%;
+                height: 100vh;
+                height: 100dvh;
+            }
+
             .content-container {
                 flex-direction: column; 
                 text-align: center;
@@ -418,6 +435,14 @@
                 width: 18px;
                 height: 18px;
             }
+
+            .section-2 {
+                padding-bottom: calc(250px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .section-2 .container {
+                padding-bottom: 40px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -435,6 +460,14 @@
         }
         
         @media (max-width: 600px) {
+            .section-2 {
+                padding-bottom: calc(280px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .section-2 .container {
+                padding-bottom: 60px;
+            }
+
             .section-2 .container {
                 max-width: 100%;
             }
@@ -527,6 +560,7 @@
         #theme-toggle:active svg {
             transform: rotate(360deg);
         }
+
     </style>
 </head>
 <body>
@@ -692,20 +726,23 @@
             goToSection(0); 
         });
 
+        const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent);
 
-        window.addEventListener('wheel', (e) => {
-            if (isScrolling) {
-                e.preventDefault();
-                return;
-            }
+        if (!isMobile) {
+            window.addEventListener('wheel', (e) => {
+                if (isScrolling) {
+                    e.preventDefault();
+                    return;
+                }
 
-            if (e.deltaY > 0) {
-                goToSection(currentSectionIndex + 1);
-            } else if (e.deltaY < 0) {
-                goToSection(currentSectionIndex - 1);
-            }
-            e.preventDefault(); 
-        }, { passive: false });
+                if (e.deltaY > 0) {
+                    goToSection(currentSectionIndex + 1);
+                } else if (e.deltaY < 0) {
+                    goToSection(currentSectionIndex - 1);
+                }
+                e.preventDefault(); 
+            }, { passive: false });
+        }
 
         document.addEventListener('keydown', (e) => {
             if (isScrolling) return;
@@ -716,8 +753,96 @@
                 goToSection(currentSectionIndex - 1);
             }
         });
+
+        if (isMobile) {
+            let touchStartY = 0;
+            let touchEndY = 0;
+            let touchStartX = 0;
+            const minSwipeDistance = 50;
+            let isTouchMoving = false;
+            let touchStartTime = 0;
+
+            document.addEventListener('touchstart', (e) => {
+                if (isScrolling) return;
+                
+                const touchTarget = e.target;
+                const isInteractive = touchTarget.closest('a, button, input, textarea, select');
+                
+                if (!isInteractive) {
+                    touchStartY = e.changedTouches[0].screenY;
+                    touchStartX = e.changedTouches[0].screenX;
+                    touchStartTime = Date.now();
+                    isTouchMoving = false;
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                if (isScrolling) return;
+                
+                const touchTarget = e.target;
+                const isInteractive = touchTarget.closest('a, button, input, textarea, select');
+                if (isInteractive && touchStartY === 0) return;
+                
+                if (touchStartY === 0) {
+                    touchStartY = e.changedTouches[0].screenY;
+                    touchStartX = e.changedTouches[0].screenX;
+                }
+                
+                const currentY = e.changedTouches[0].screenY;
+                const currentX = e.changedTouches[0].screenX;
+                const deltaY = Math.abs(currentY - touchStartY);
+                const deltaX = Math.abs(currentX - touchStartX);
+                
+                if (deltaY > 10 || deltaX > 10) {
+                    isTouchMoving = true;
+                    if (deltaY > deltaX && !isInteractive) {
+                        e.preventDefault();
+                    }
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', (e) => {
+                if (isScrolling || touchStartY === 0) {
+                    touchStartY = 0;
+                    touchStartX = 0;
+                    isTouchMoving = false;
+                    return;
+                }
+                
+                const touchTarget = e.target;
+                const isInteractive = touchTarget.closest('a, button, input, textarea, select');
+                const touchDuration = Date.now() - touchStartTime;
+                
+                if (isInteractive && touchDuration < 300) {
+                    touchStartY = 0;
+                    touchStartX = 0;
+                    isTouchMoving = false;
+                    return;
+                }
+                
+                if (!isTouchMoving) {
+                    touchStartY = 0;
+                    touchStartX = 0;
+                    return;
+                }
+                
+                touchEndY = e.changedTouches[0].screenY;
+                const swipeDistance = touchStartY - touchEndY;
+
+                if (Math.abs(swipeDistance) > minSwipeDistance) {
+                    if (swipeDistance > 0) {
+                        goToSection(currentSectionIndex + 1);
+                    } else {
+                        goToSection(currentSectionIndex - 1);
+                    }
+                }
+                
+                touchStartY = 0;
+                touchStartX = 0;
+                isTouchMoving = false;
+            }, { passive: true });
+        }
     </script>
 
 </body>
 </html>
-
